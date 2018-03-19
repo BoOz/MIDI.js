@@ -17,13 +17,14 @@
 	<script src="../js/util/dom_request_xhr.js" type="text/javascript"></script>
 	<script src="../js/util/dom_request_script.js" type="text/javascript"></script>
 </head>
-<body>
+<body style="text-align:center">
+
+<h1><span id="titre"></span></h1>
+<p><small id="mesure"></small> / <small id="mesures"></small></p>
+
 <script type="text/javascript">
 
-
 window.onload = function () {
-	
-	
 	
 	MIDI.loadPlugin({
 		soundfontUrl: "./soundfont/",
@@ -33,7 +34,6 @@ window.onload = function () {
 			console.log(state, progress);
 		},
 		onsuccess: function() {
-			
 			
 			var delay = 1 ; // décompte du temps en secondes, on démarre à une seconde pour laisser le temps de se mettre en place.
 			var velocity = 127; // how hard the note hits
@@ -48,15 +48,23 @@ window.onload = function () {
 			// majeur pour tester au début.
 			// nom_gamme="major" ; // la majeur
 			
-			document.write(nom_gamme);
-			var g = gamme(69,nom_gamme);
+			//document.write(nom_gamme);
+			
+			document.getElementById("titre").innerHTML = "Mélodie aléatoire sur le mode <i>" + nom_gamme + "</i>"  ;
+			
+			//titre.innerHTML = nom_gamme ;
+			
+			var g = gamme(62,nom_gamme); // ré
 			var note;
 			
 			// on fait une mélodie
 			// note => durée au hasard.
-			// durée possibles, double croche (0.25), croche (0.5), noire (1), blanche (2), (ronde (4)).
 			nb_temps = 32 ;
+			document.getElementById("mesures").innerHTML = nb_temps / 4 ;
+			
+			// durée possibles, double croche (0.25), croche (0.5), noire (1), blanche (2), (ronde (4)).
 			subdivisions = [0.25,0.5,1,2]
+			
 			var temps = 0 ;
 			var duree ;
 			var melodie = [] ;
@@ -65,7 +73,7 @@ window.onload = function () {
 				note = g[ g.length * Math.random() << 0]
 				// une durée au hasard
 				duree = subdivisions[ subdivisions.length * Math.random() << 0]
-				console.log(temps,note,duree);
+				//console.log(temps,note,duree);
 				melodie.push({note:note,duree:duree}) ;
 				temps += duree ;
 			}
@@ -73,8 +81,20 @@ window.onload = function () {
 			delay_accompagnement = delay ;
 			// jouer un accompagnement tous les temps.
 			var duree_acompagnement = 1 ;
-			
+			var nb_mesure = 1 ;
 			while(duree_acompagnement < nb_temps){
+				//console.log(duree_acompagnement);
+				if(duree_acompagnement%4 == 0){
+					nb_mesure++ ;
+					var nb_lol = nb_mesure ;
+					//console.log(duree_acompagnement%4,duree_acompagnement,nb_mesure);
+					console.log("on envoie le paté avec " + nb_lol + " dans " + duree_acompagnement + " secondes ")
+					
+					if(nb_mesure == 4)
+						setTimeout(function(){ document.getElementById("mesure").innerHTML = nb_lol ; }, duree_acompagnement * 1000 );
+					//console.log(timeout);
+				}
+
 				
 				degre = "I" ;
 				if(duree_acompagnement%8 >= 1 && duree_acompagnement%16 >=9)
@@ -95,7 +115,8 @@ window.onload = function () {
 				jouer_note(delay,melodie[i].note,velocity,volume,melodie[i].duree);
 				delay = delay + melodie[i].duree ;
 			}
-
+			
+			// setTimeout(function(){ window.location.reload(true); }, delay * 1000 + 1000);
 		}
 	});
 };
@@ -129,10 +150,10 @@ function gamme(tonic,scale){
 	}
 	return g;
 }
-
+// https://gist.github.com/gleitz/6845751
 var scales = {
-	'natural major':	[0,2,4,5,7,9,11,12],
-	'major':			[0,2,4,5,7,9,11,12],
+	//'natural major':	[0,2,4,5,7,9,11,12],
+	//'major':			[0,2,4,5,7,9,11,12],
 	'ionian':			[0,2,4,5,7,9,11,12],
 	'lydian':			[0,2,4,6,7,9,11,12],
 	'mixolydian':		[0,2,4,5,7,9,10,12],
@@ -140,13 +161,14 @@ var scales = {
 	'phrygian':			[0,1,3,5,7,8,10,12],
 	'locrian':			[0,1,3,5,6,8,10,12],
 
-	'natural minor':	[0,2,3,5,7,8,10,12],
+	//'natural minor':	[0,2,3,5,7,8,10,12],
 	'minor':			[0,2,3,5,7,8,10,12],
 	'melodic minor':	[0,2,3,5,7,9,11,12],
 	'harmonic minor':	[0,2,3,5,7,8,11,12],
 
 	'locrian natural': [0,2,3,5,6,8,10,12],
 	'aeolian': [0,2,3,5,7,8,10,12],
+/*
 	
 	'chromatic': [0,1,2,3,4,5,6,7,8,9,10,11,12],
 	'spanish 8 tone': [0,1,3,4,5,6,8,10,12],
@@ -215,12 +237,14 @@ var scales = {
 	'egyptian': [0,2,3,6,7,8,11,12],
 	'pentatonic minor': [0,3,5,7,10,12],
 	'chinese 2': [0,4,6,7,11,12],
-	'altered': [0,1,3,4,6,8,10,12],
 	'bebop dominant': [0,2,4,5,7,9,10,11,12],
 	'bebop dominant flatnine': [0,1,4,5,7,9,10,11,12],
 	'bebop major': [0,2,4,5,7,8,9,11,12],
 	'bebop minor': [0,2,3,5,7,8,9,10,12],
-	'bebop tonic minor': [0,2,3,5,7,8,9,11,12]
+	'bebop tonic minor': [0,2,3,5,7,8,9,11,12],
+*/
+	'altered': [0,1,3,4,6,8,10,12]
+
 };
 /*
 Octave  	Note Numbers
