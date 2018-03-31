@@ -20,7 +20,7 @@
 <body style="text-align:center">
 
 <h1><span id="titre"></span></h1>
-<p><small id="mesure"></small> / <small id="mesures"></small></p>
+<p><small id="afficher_temps"></small> - <small id="afficher_mesure"></small> / <small id="mesures"></small></p>
 
 <script type="text/javascript">
 
@@ -45,10 +45,6 @@ window.onload = function () {
 			// une gamme au hasard
 			var keys = Object.keys(scales)
 			var nom_gamme = keys[ keys.length * Math.random() << 0] ;
-			// majeur pour tester au début.
-			// nom_gamme="major" ; // la majeur
-			
-			//document.write(nom_gamme);
 			
 			document.getElementById("titre").innerHTML = "Mélodie aléatoire sur le mode <i>" + nom_gamme + "</i>"  ;
 			
@@ -65,36 +61,33 @@ window.onload = function () {
 			// durée possibles, double croche (0.25), croche (0.5), noire (1), blanche (2), (ronde (4)).
 			subdivisions = [0.25,0.5,1,2]
 			
-			var temps = 0 ;
+			var duree_melodie = 0 ;
 			var duree ;
 			var melodie = [] ;
-			while(temps < nb_temps){
+			while(duree_melodie < nb_temps){
 				// une note de la gamme au hasard
 				note = g[ g.length * Math.random() << 0]
 				// une durée au hasard
 				duree = subdivisions[ subdivisions.length * Math.random() << 0]
-				//console.log(temps,note,duree);
+				//console.log(duree_melodie,note,duree);
 				melodie.push({note:note,duree:duree}) ;
-				temps += duree ;
+				duree_melodie += duree ;
 			}
+			
+			// voilà la mélodie est prête.
+			
+			
 			
 			delay_accompagnement = delay ;
 			// jouer un accompagnement tous les temps.
 			var duree_acompagnement = 1 ;
-			var nb_mesure = 1 ;
+			
+			// affichage du temps avec un decalage d'une seconde
+			temps = 1 ;
+			mesure = 1 ;
+			setInterval(compter_temps, 1 * 1000 ) ;
+			
 			while(duree_acompagnement < nb_temps){
-				//console.log(duree_acompagnement);
-				if(duree_acompagnement%4 == 0){
-					nb_mesure++ ;
-					var nb_lol = nb_mesure ;
-					//console.log(duree_acompagnement%4,duree_acompagnement,nb_mesure);
-					console.log("on envoie le paté avec " + nb_lol + " dans " + duree_acompagnement + " secondes ")
-					
-					if(nb_mesure == 4)
-						setTimeout(function(){ document.getElementById("mesure").innerHTML = nb_lol ; }, duree_acompagnement * 1000 );
-					//console.log(timeout);
-				}
-
 				
 				degre = "I" ;
 				if(duree_acompagnement%8 >= 1 && duree_acompagnement%16 >=9)
@@ -116,7 +109,7 @@ window.onload = function () {
 				delay = delay + melodie[i].duree ;
 			}
 			
-			// setTimeout(function(){ window.location.reload(true); }, delay * 1000 + 1000);
+			setTimeout(function(){ window.location.reload(true); }, delay * 1000 + 1000);
 		}
 	});
 };
@@ -126,6 +119,16 @@ function jouer_note(delay,note,velocity,volume,duration){
 	MIDI.setVolume(0, volume);
 	MIDI.noteOn(0, note, velocity, delay);
 	MIDI.noteOff(0, note, delay + duration);
+}
+
+function compter_temps(){
+	document.getElementById("afficher_temps").innerHTML = temps ;
+	if(temps%4 == 0){
+		mesure++ ;
+		document.getElementById("afficher_mesure").innerHTML = mesure ;
+	}
+	temps++;
+	console.log(MIDI.getContext());
 }
 
 function jouer_accord(gamme,degre,duree,delay){
@@ -155,19 +158,19 @@ var scales = {
 	//'natural major':	[0,2,4,5,7,9,11,12],
 	//'major':			[0,2,4,5,7,9,11,12],
 	'ionian':			[0,2,4,5,7,9,11,12],
-	'lydian':			[0,2,4,6,7,9,11,12],
+	//'lydian':			[0,2,4,6,7,9,11,12],
 	'mixolydian':		[0,2,4,5,7,9,10,12],
 
-	'phrygian':			[0,1,3,5,7,8,10,12],
-	'locrian':			[0,1,3,5,6,8,10,12],
+	//'phrygian':			[0,1,3,5,7,8,10,12],
+	//'locrian':			[0,1,3,5,6,8,10,12],
 
 	//'natural minor':	[0,2,3,5,7,8,10,12],
-	'minor':			[0,2,3,5,7,8,10,12],
-	'melodic minor':	[0,2,3,5,7,9,11,12],
+	//'minor':			[0,2,3,5,7,8,10,12],
+	//'melodic minor':	[0,2,3,5,7,9,11,12],
 	'harmonic minor':	[0,2,3,5,7,8,11,12],
 
-	'locrian natural': [0,2,3,5,6,8,10,12],
-	'aeolian': [0,2,3,5,7,8,10,12],
+	//'locrian natural': [0,2,3,5,6,8,10,12],
+	//'aeolian': [0,2,3,5,7,8,10,12],
 /*
 	
 	'chromatic': [0,1,2,3,4,5,6,7,8,9,10,11,12],
@@ -242,8 +245,8 @@ var scales = {
 	'bebop major': [0,2,4,5,7,8,9,11,12],
 	'bebop minor': [0,2,3,5,7,8,9,10,12],
 	'bebop tonic minor': [0,2,3,5,7,8,9,11,12],
-*/
 	'altered': [0,1,3,4,6,8,10,12]
+*/
 
 };
 /*
